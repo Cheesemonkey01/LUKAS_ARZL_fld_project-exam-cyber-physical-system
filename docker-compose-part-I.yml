@@ -1,26 +1,26 @@
 services:
   mqtt:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto      # Using the official Eclipse Mosquitto image
     ports:
       - "1883:1883"
       - "9001:9001"
     volumes:
-      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/config:/mosquitto/config      # Mounting local config directory to container
     entrypoint: >
-      sh -c "test -f /mosquitto/config/mosquitto.conf ||
+      sh -c "test -f /mosquitto/config/mosquitto.conf ||      
              echo '# Allow clients to connect without a username/password' > /mosquitto/config/mosquitto.conf &&
              echo 'allow_anonymous true' >> /mosquitto/config/mosquitto.conf &&
              echo '' >> /mosquitto/config/mosquitto.conf &&
              echo '# Default MQTT listener on port 1883' >> /mosquitto/config/mosquitto.conf &&
              echo 'listener 1883' >> /mosquitto/config/mosquitto.conf;
              mosquitto -c /mosquitto/config/mosquitto.conf"
-    restart: always
+    restart: always               # Restart policy to always restart the container if it stops
   nodered:
-    image: nodered/node-red
+    image: nodered/node-red # Using the official Node-RED image 
     ports:
       - "1880:1880"
     volumes:
-      - ./nodered_data:/data
-    depends_on:
+      - ./nodered_data:/data    # Mounting local data directory to container
+    depends_on:     # Ensuring that the MQTT service is started before Node-RED
       - mqtt
-    restart: always
+    restart: always          # Restart policy to always restart the container if it stops
